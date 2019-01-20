@@ -1,0 +1,44 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: 'Source Sans Pro';
+}
+
+.ace_editor {
+  background-color: #f0f4f8 !important;
+  color: black !important;
+  height: 100vh !important;
+}
+
+.ace_content {
+  margin-top: 70px !important;
+}
+
+.ace_editor .ace_gutter {
+  background-color: #334e68 !important;
+  display: none !important;
+}
+
+.ace_editor .ace_active-line {
+  background-color: #d9e2ec !important;
+}
+
+.ace_editor .ace_cursor {
+  background-color: #f0b429 !important;
+  color: #f0b429 !important;
+}
+
+.ace_editor .ace_heading {
+  color: #003e6b;
+}
+
+.ace_gutter-cell {
+  display: none;
+}
+
+.ace_gutter-active-line {
+  background-color: transparent !important;
+}

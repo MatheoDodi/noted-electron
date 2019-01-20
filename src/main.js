@@ -9,7 +9,14 @@ let mainWindow;
 
 function createWindow() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({ width: 800, height: 600 });
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    titleBarStyle: 'hidden',
+    show: false
+  });
+  mainWindow.maximize();
+  mainWindow.show();
 
   //Create the Menu
   const template = [
