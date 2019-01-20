@@ -31,7 +31,11 @@ function createWindow() {
           }
         },
         {
-          label: 'Open Folder'
+          label: 'Open Folder',
+          accelerator: 'CmdOrCtrl+D',
+          click() {
+            openDir();
+          }
         }
       ]
     },
@@ -188,4 +192,20 @@ function openFile() {
   const fileContent = fs.readFileSync(file).toString();
   // Sends fileContent to the front end of the app
   mainWindow.webContents.send('new-file', fileContent);
+}
+
+function openDir() {
+  const directory = dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  });
+  if (!directory) return;
+
+  fs.readdir(directory[0], (err, files) => {
+    const mdFiles = files.filter(
+      file => file.split('.')[1] === 'txt' || file.split('.')[1] === 'txt'
+    );
+    const filePaths = mdFiles.map(file => `${directory[0]}/${file}`);
+
+    mainWindow.webContents.send('new-dir', filePaths, directory[0]);
+  });
 }

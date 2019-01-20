@@ -5,6 +5,12 @@
 html,
 body {
   font-family: 'Source Sans Pro';
+  min-height: 100vh;
+}
+
+.App {
+  background-color: #f0f4f8;
+  min-height: 100vh;
 }
 
 .ace_editor {
