@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, Menu, dialog } = require('electron');
 
@@ -175,4 +177,8 @@ function openFile() {
     ]
   });
   if (!files) return;
+  const file = files[0];
+  const fileContent = fs.readFileSync(file).toString();
+  // Sends fileContent to the front end of the app
+  mainWindow.webContents.send('new-file', fileContent);
 }

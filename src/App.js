@@ -2,7 +2,20 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+const { ipcRenderer } = window.require('electron');
+
 class App extends Component {
+  state = {
+    newFile: ''
+  };
+
+  componentDidMount() {
+    ipcRenderer.on('new-file', (e, fileContent) => {
+      console.log(e, fileContent);
+      this.setState({ newFile: fileContent });
+    });
+  }
+
   render() {
     return (
       <div className='App'>
@@ -11,14 +24,9 @@ class App extends Component {
           <p>
             Edit <code>src/App.js</code>.
           </p>
-          <a
-            className='App-link'
-            href='https://reactjs.org'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            Learn React
-          </a>
+          <p>
+            {this.state.newFile || 'Load up a file to see it displayed here!'}
+          </p>
         </header>
       </div>
     );
