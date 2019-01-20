@@ -199,16 +199,13 @@ function openDir() {
   });
   if (!directory) return;
 
-  fs.readdir(directory[0], (err, files) => {
-    const mdFiles = files.filter(
-      file => file.split('.')[1] === 'txt' || file.split('.')[1] === 'txt'
-    );
-    const filePaths = mdFiles.map(file => `${directory[0]}/${file}`);
-
-    mainWindow.webContents.send('new-dir', filePaths, directory[0]);
-  });
+  mainWindow.webContents.send('new-dir', directory[0]);
 }
 
 ipcMain.on('new-file', () => {
   openFile();
+});
+
+ipcMain.on('new-dir', () => {
+  openDir();
 });

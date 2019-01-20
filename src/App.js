@@ -6,7 +6,8 @@ import brace from 'brace';
 import 'brace/mode/markdown';
 import 'brace/theme/chaos';
 import './App.css';
-const { ipcRenderer, dialog } = window.require('electron');
+
+const { ipcRenderer } = window.require('electron');
 const settings = window.require('electron-settings');
 const fs = window.require('fs');
 
@@ -14,24 +15,43 @@ class App extends Component {
   state = {
     loaded: false,
     directory: settings.get('directory') || null,
-    loadedFile: ''
+    loadedFile: '',
+    filesData: []
   };
 
   componentDidMount() {
+    const directory = settings.get('directory');
+    if (directory) {
+      this.setState(() => ({ loaded: true }));
+      this.loadAndReadFiles(directory);
+    }
+
     ipcRenderer.on('new-file', (e, fileContent) => {
       console.log(e, fileContent);
       this.setState({ loaded: true, loadedFile: fileContent });
     });
 
-    ipcRenderer.on('new-dir', (e, filePaths, dir) => {
-      console.log(e, filePaths, dir);
+    ipcRenderer.on('new-dir', (e, directory) => {
       this.setState({
-        directory: dir,
+        directory,
         loaded: true
       });
-      settings.set('directory', dir);
+      settings.set('directory', directory);
+      this.loadAndReadFiles(directory);
     });
   }
+
+  loadAndReadFiles = directory => {
+    fs.readdir(directory, (err, files) => {
+      const mdFiles = files.filter(
+        file => file.split('.')[1] === 'txt' || file.split('.')[1] === 'txt'
+      );
+      const filesData = mdFiles.map(file => ({ path: `${directory}/${file}` }));
+      this.setState({
+        filesData
+      });
+    });
+  };
 
   render() {
     return (
@@ -41,6 +61,11 @@ class App extends Component {
         </Header>
         {this.state.loaded ? (
           <Split>
+            <div>
+              {this.state.filesData.map(file => (
+                <h1>{file.path}</h1>
+              ))}
+            </div>
             <AceEditor
               mode='markdown'
               theme='monokai'
@@ -76,7 +101,7 @@ class App extends Component {
                 </svg>
                 <h2>Open FIle</h2>
               </OptionBox>
-              <OptionBox>
+              <OptionBox onClick={() => ipcRenderer.send('new-dir')}>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   viewBox='0 0 24 24'
@@ -157,7 +182,7 @@ const Paper = styled.div`
 `;
 
 const Header = styled.header`
-  background-color: #003e6b;
+  background: linear-gradient(to bottom right, #0f609b, #003e6b);
   color: #f0f4f8;
   font-size: 0.8rem;
   height: 23px;
@@ -191,7 +216,7 @@ const LoadingMessage = styled.div`
   height: 60vh;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  background-color: #003e6b;
+  background: linear-gradient(to bottom right, #0f609b, #003e6b);
   box-shadow: 0 12px 15px 2px rgba(0, 0, 0, 0.2);
   border-radius: 20px;
   justify-content: center;
