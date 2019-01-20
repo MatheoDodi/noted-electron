@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Markdown from 'markdown-to-jsx';
 import logo from './logo.svg';
 import './App.css';
 
@@ -6,28 +7,22 @@ const { ipcRenderer } = window.require('electron');
 
 class App extends Component {
   state = {
-    newFile: ''
+    loadedFile: ''
   };
 
   componentDidMount() {
     ipcRenderer.on('new-file', (e, fileContent) => {
       console.log(e, fileContent);
-      this.setState({ newFile: fileContent });
+      this.setState({ loadedFile: fileContent });
     });
   }
 
   render() {
     return (
       <div className='App'>
-        <header className='App-header'>
-          <img src={logo} className='App-logo' alt='logo' />
-          <p>
-            Edit <code>src/App.js</code>.
-          </p>
-          <p>
-            {this.state.newFile || 'Load up a file to see it displayed here!'}
-          </p>
-        </header>
+        <Markdown>
+          {this.state.loadedFile || 'Load up a file to see it displayed here!'}
+        </Markdown>
       </div>
     );
   }
