@@ -1,2 +1,3 @@
 # noted-electron
-Creating a note/journaling application in Electron. 
+
+Creating a note/journaling application in Electron.
