@@ -62,7 +62,7 @@ class App extends Component {
         ) : (
           <Container>
             <LoadingMessage>
-              <OptionBox onClick={this.openFile}>
+              <OptionBox onClick={() => ipcRenderer.send('new-file')}>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   viewBox='0 0 24 24'
@@ -76,7 +76,7 @@ class App extends Component {
                 </svg>
                 <h2>Open FIle</h2>
               </OptionBox>
-              <OptionBox onClick={this.openDir}>
+              <OptionBox>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   viewBox='0 0 24 24'
