@@ -35,6 +35,13 @@ function createWindow() {
           click() {
             openDir();
           }
+        },
+        {
+          label: 'Save File',
+          accelerator: 'CmdOrCtrl+S',
+          click() {
+            mainWindow.webContents.send('save-file');
+          }
         }
       ]
     },

@@ -14,6 +14,7 @@ const fs = window.require('fs');
 class App extends Component {
   state = {
     loaded: false,
+    activeIndex: 0,
     directory: settings.get('directory') || null,
     loadedFile: '',
     filesData: []
@@ -39,6 +40,8 @@ class App extends Component {
       settings.set('directory', directory);
       this.loadAndReadFiles(directory);
     });
+
+    ipcRenderer.on('save-file', this.saveFile);
   }
 
   loadAndReadFiles = directory => {
@@ -51,16 +54,32 @@ class App extends Component {
         {
           filesData
         },
-        () => this.loadFIle(0)
+        () => this.loadFile(0)
       );
     });
   };
 
-  loadFIle = index => {
+  changeFile = index => () => {
+    const { activeIndex } = this.state;
+    if (index !== activeIndex) {
+      this.saveFile();
+      this.loadFile(index);
+    }
+  };
+
+  loadFile = index => {
     const { filesData } = this.state;
 
     const content = fs.readFileSync(filesData[index].path).toString();
-    this.setState({ loadedFile: content });
+    this.setState({ loadedFile: content, activeIndex: index });
+  };
+
+  saveFile = () => {
+    const { activeIndex, loadedFile, filesData } = this.state;
+    fs.writeFile(filesData[activeIndex].path, loadedFile, err => {
+      if (err) return console.log(err);
+      console.log('Saved');
+    });
   };
 
   render() {
@@ -74,9 +93,7 @@ class App extends Component {
             <Split>
               <FilesWindow>
                 {this.state.filesData.map((file, index) => (
-                  <button onClick={() => this.loadFIle(index)}>
-                    {file.path}
-                  </button>
+                  <button onClick={this.changeFile(index)}>{file.path}</button>
                 ))}
               </FilesWindow>
               <AceEditor
