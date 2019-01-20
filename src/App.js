@@ -47,84 +47,98 @@ class App extends Component {
         file => file.split('.')[1] === 'txt' || file.split('.')[1] === 'txt'
       );
       const filesData = mdFiles.map(file => ({ path: `${directory}/${file}` }));
-      this.setState({
-        filesData
-      });
+      this.setState(
+        {
+          filesData
+        },
+        () => this.loadFIle(0)
+      );
     });
+  };
+
+  loadFIle = index => {
+    const { filesData } = this.state;
+
+    const content = fs.readFileSync(filesData[index].path).toString();
+    this.setState({ loadedFile: content });
   };
 
   render() {
     return (
       <div className='App'>
-        <Header>
-          <span>Noted</span>
-        </Header>
-        {this.state.loaded ? (
-          <Split>
-            <div>
-              {this.state.filesData.map(file => (
-                <h1>{file.path}</h1>
-              ))}
-            </div>
-            <AceEditor
-              mode='markdown'
-              theme='monokai'
-              onChange={newContent => {
-                this.setState({ loadedFile: newContent });
-              }}
-              name='markdown_editor'
-              value={this.state.loadedFile}
-            />
-            <RenderedWindow>
-              <Paper>
-                <Markdown>
-                  {this.state.loadedFile ||
-                    'Load up a file to see it displayed here!'}
-                </Markdown>
-              </Paper>
-            </RenderedWindow>
-          </Split>
-        ) : (
-          <Container>
-            <LoadingMessage>
-              <OptionBox onClick={() => ipcRenderer.send('new-file')}>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 24 24'
-                  class='icon-document-notes'
-                >
-                  <path
-                    class='primary'
-                    d='M6 2h6v6c0 1.1.9 2 2 2h6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4c0-1.1.9-2 2-2zm2 11a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2H8zm0 4a1 1 0 0 0 0 2h4a1 1 0 0 0 0-2H8z'
-                  />
-                  <polygon class='secondary' points='14 2 20 8 14 8' />
-                </svg>
-                <h2>Open FIle</h2>
-              </OptionBox>
-              <OptionBox onClick={() => ipcRenderer.send('new-dir')}>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 24 24'
-                  class='icon-folder'
-                >
-                  <path
-                    class='secondary'
-                    d='M4 4h7l2 2h7a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6c0-1.1.9-2 2-2z'
-                  />
-                  <rect
-                    width='20'
-                    height='12'
-                    x='2'
-                    y='8'
-                    class='primary'
-                    rx='2'
-                  />
-                </svg>
-                <h2>Open Folder</h2>
-              </OptionBox>
-            </LoadingMessage>
-          </Container>
-        )}
+        <AppWrap>
+          <Header>
+            <span>Noted</span>
+          </Header>
+          {this.state.loaded ? (
+            <Split>
+              <FilesWindow>
+                {this.state.filesData.map((file, index) => (
+                  <button onClick={() => this.loadFIle(index)}>
+                    {file.path}
+                  </button>
+                ))}
+              </FilesWindow>
+              <AceEditor
+                mode='markdown'
+                theme='monokai'
+                onChange={newContent => {
+                  this.setState({ loadedFile: newContent });
+                }}
+                name='markdown_editor'
+                value={this.state.loadedFile}
+              />
+              <RenderedWindow>
+                <Paper>
+                  <Markdown>
+                    {this.state.loadedFile ||
+                      'Load up a file to see it displayed here!'}
+                  </Markdown>
+                </Paper>
+              </RenderedWindow>
+            </Split>
+          ) : (
+            <Container>
+              <LoadingMessage>
+                <OptionBox onClick={() => ipcRenderer.send('new-file')}>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 24 24'
+                    class='icon-document-notes'
+                  >
+                    <path
+                      class='primary'
+                      d='M6 2h6v6c0 1.1.9 2 2 2h6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4c0-1.1.9-2 2-2zm2 11a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2H8zm0 4a1 1 0 0 0 0 2h4a1 1 0 0 0 0-2H8z'
+                    />
+                    <polygon class='secondary' points='14 2 20 8 14 8' />
+                  </svg>
+                  <h2>Open FIle</h2>
+                </OptionBox>
+                <OptionBox onClick={() => ipcRenderer.send('new-dir')}>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 24 24'
+                    class='icon-folder'
+                  >
+                    <path
+                      class='secondary'
+                      d='M4 4h7l2 2h7a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6c0-1.1.9-2 2-2z'
+                    />
+                    <rect
+                      width='20'
+                      height='12'
+                      x='2'
+                      y='8'
+                      class='primary'
+                      rx='2'
+                    />
+                  </svg>
+                  <h2>Open Folder</h2>
+                </OptionBox>
+              </LoadingMessage>
+            </Container>
+          )}
+        </AppWrap>
       </div>
     );
   }
@@ -137,8 +151,29 @@ const Split = styled.div`
   height: 100vh;
 `;
 
+const AppWrap = styled.div`
+  padding-top: 23px;
+`;
+
+const FilesWindow = styled.div`
+  background: linear-gradient(to bottom, #647acb, #4c63b6);
+  border-right: solid 1px #302b3a;
+  position: relative;
+  width: 20%;
+  &:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+    box-shadow: -10px 0 20px rgba(0, 0, 0, 0.3) inset;
+  }
+`;
+
 const RenderedWindow = styled.div`
-  background-color: #d9e2ec;
+  background: linear-gradient(to bottom, #d9e2ec, #cbd2d9);
   width: 100%;
   display: flex;
   align-items: center;
@@ -182,7 +217,7 @@ const Paper = styled.div`
 `;
 
 const Header = styled.header`
-  background: linear-gradient(to bottom right, #0f609b, #003e6b);
+  background: linear-gradient(to bottom right, #4c63b6, #19216c);
   color: #f0f4f8;
   font-size: 0.8rem;
   height: 23px;
@@ -216,7 +251,7 @@ const LoadingMessage = styled.div`
   height: 60vh;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  background: linear-gradient(to bottom right, #0f609b, #003e6b);
+  background: linear-gradient(to bottom right, #4c63b6, #19216c);
   box-shadow: 0 12px 15px 2px rgba(0, 0, 0, 0.2);
   border-radius: 20px;
   justify-content: center;
