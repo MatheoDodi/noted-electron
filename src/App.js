@@ -15,7 +15,7 @@ class App extends Component {
   state = {
     loaded: false,
     activeIndex: 0,
-    directory: settings.get('directory') || null,
+    directory: null,
     loadedFile: '',
     filesData: []
   };
@@ -83,17 +83,30 @@ class App extends Component {
   };
 
   render() {
+    const { activeIndex, filesData, loadedFile, loaded } = this.state;
     return (
       <div className='App'>
         <AppWrap>
           <Header>
             <span>Noted</span>
           </Header>
-          {this.state.loaded ? (
+          {loaded ? (
             <Split>
               <FilesWindow>
-                {this.state.filesData.map((file, index) => (
-                  <button onClick={this.changeFile(index)}>{file.path}</button>
+                <NewFile onClick={() => ipcRenderer.send('new-entry-save')}>
+                  + New Entry
+                </NewFile>
+                {filesData.map((file, index) => (
+                  <FileButton
+                    active={activeIndex === index}
+                    onClick={this.changeFile(index)}
+                  >
+                    {
+                      file.path
+                        .split('/')
+                        [file.path.split('/').length - 1].split('.')[0]
+                    }
+                  </FileButton>
                 ))}
               </FilesWindow>
               <AceEditor
@@ -103,13 +116,12 @@ class App extends Component {
                   this.setState({ loadedFile: newContent });
                 }}
                 name='markdown_editor'
-                value={this.state.loadedFile}
+                value={loadedFile}
               />
               <RenderedWindow>
                 <Paper>
                   <Markdown>
-                    {this.state.loadedFile ||
-                      'Load up a file to see it displayed here!'}
+                    {loadedFile || 'Load up a file to see it displayed here!'}
                   </Markdown>
                 </Paper>
               </RenderedWindow>
@@ -196,7 +208,7 @@ const RenderedWindow = styled.div`
   align-items: center;
   justify-content: center;
   padding: 5rem 5rem;
-  border-left: 5px solid #627d98;
+  border-left: 5px solid #35469c;
 `;
 
 const Paper = styled.div`
@@ -303,5 +315,45 @@ const OptionBox = styled.div`
     .secondary {
       fill: white;
     }
+  }
+`;
+
+const FileButton = styled.button`
+  padding: 10px;
+  width: 100%;
+  background: #323f4b;
+  opacity: 0.4;
+  color: white;
+  border: none;
+  border-bottom: solid 1px #302b3a;
+  transition: all 0.3s ease;
+  border-left: solid 4px #323f4b;
+  outline: none;
+  text-align: left;
+  &:hover,
+  &:active {
+    opacity: 1;
+    border-left: solid 4px #40c3f7;
+  }
+
+  ${({ active }) =>
+    active &&
+    `opacity: 1;
+    border-left: solid 4px #40C3F7;`}
+`;
+
+const NewFile = styled.button`
+  display: block;
+  background: transparent;
+  color: #cbd2d9;
+  border: solid 1px #cbd2d9;
+  border-radius: 4px;
+  margin: 1rem auto;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  padding: 5px 10px;
+  &:hover {
+    background: #4c63b6;
+    color: white;
   }
 `;

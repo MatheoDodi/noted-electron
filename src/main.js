@@ -183,7 +183,7 @@ app.on('activate', function() {
 
 // Open File
 
-function openFile() {
+function openFile(f) {
   const files = dialog.showOpenDialog(mainWindow, {
     properties: ['openFile'],
     filters: [
@@ -208,6 +208,23 @@ function openDir() {
 
   mainWindow.webContents.send('new-dir', directory[0]);
 }
+
+ipcMain.on('new-entry-save', () => {
+  const directory = dialog.showSaveDialog(
+    mainWindow,
+    {
+      buttonLabel: 'Create Entry',
+      message: 'Please select directory for new entry to be created'
+    },
+    (filename, bookmark) => {
+      fs.writeFile(`${filename}.txt`, "Here's your new entry", err => {
+        if (err) throw err;
+
+        console.log('The entry was succesfully created');
+      });
+    }
+  );
+});
 
 ipcMain.on('new-file', () => {
   openFile();

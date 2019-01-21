@@ -21,6 +21,7 @@ body {
 
 .ace_content {
   margin-top: 70px !important;
+  overflow-y: scroll !important;
 }
 
 .ace_editor .ace_gutter {
